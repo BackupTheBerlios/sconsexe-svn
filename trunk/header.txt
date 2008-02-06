@@ -1,0 +1,9 @@
+from os.path import dirname, join
+import sys
+
+lib = sys.path[0]
+base = dirname(lib)
+engine = join(base, "engine")
+pylib = join(base, "pylib")
+
+sys.path = [lib, engine, pylib, base]
