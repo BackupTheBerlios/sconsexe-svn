@@ -2,6 +2,8 @@
 #
 # To build you need Python (of course) from http://www.python.org and Inno
 # Setup installer from http://www.jrsoftware.org/
+#
+# NOTE: Last changes where tests *only* on an MSYS system
 
 # Miki Tebeka <miki.tebeka@gmail.com>
 
@@ -13,11 +15,10 @@ else
 	PYTHON = $(shell cmd /c pyexe.py)
 	INNO = $(shell cmd /c innoexe.py)
 endif
+PYDIR=$(dir $(PYTHON))
 
 # Version of SCons
 VERSION = $(shell $(PYTHON) setup.py --version)
-# -n means "don't overwrite"
-UNZIP = unzip -n
 
 ARCHIVE = scons-$(VERSION)-build.zip
 BUILD_FILES = \
@@ -36,16 +37,9 @@ BUILD_FILES = \
 	wizard.bmp \
 	wizard_small.bmp
 			  
-
-all: version.iss scons.py sconsign.py DLLs pylib
+all: version.iss scons.py sconsign.py scons-time.py DLLs pylib
 	$(PYTHON) exe-setup.py py2exe -i zlib
-	$(INNO) scons.iss
-
-DLLs: DLLs.zip
-	$(UNZIP) $<
-
-pylib: pylib.zip
-	$(UNZIP) $<
+	"$(INNO)" scons.iss
 
 version.iss:
 	echo > $@ "AppVerName=SCons $(VERSION)"
@@ -57,17 +51,29 @@ scons.py: script/scons
 sconsign.py: script/sconsign
 	$(PYTHON) genscript.py header.txt $< > $@
 
+scons-time.py: script/scons-time
+	$(PYTHON) genscript.py header.txt $< > $@
+
+DLLs:
+	mkdir $@
+	cp $(PYDIR)/DLLs/* $@
+	cp $(shell which msvcp71.dll) $@
+	cp $(shell which msvcr71.dll) $@
+
+pylib:
+	cp -ru $(PYDIR)/Lib $@
+	rm -fr $@/site-packages/*
+
 dist:
 	zip -r9 $(ARCHIVE) $(BUILD_FILES)
 
-# We don't clean DLLs and pylib
 clean:
 	rm -fr Output
 	rm -fr dist build
 	rm -f scons.py sconsign.py
 	rm -f version.iss
 	rm -f $(ARCHIVE)
-
+	rm -fr DLLs pylib
 
 fresh: clean all
 

@@ -1,7 +1,6 @@
 '''Find where InnoSetup exeutable is'''
 
-__author__ = "Miki Tebeka <miki.tebeka@zoran.com>"
-# $Id: //DVD-R/ADP/i60/dev/tools/innoexe.py#2 $
+__author__ = "Miki Tebeka <miki.tebeka@gmail.com>"
 
 from _winreg import OpenKeyEx, EnumKey, QueryValueEx, CloseKey, \
     HKEY_LOCAL_MACHINE
